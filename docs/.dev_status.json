@@ -8,7 +8,7 @@
     "sensitive_data_handling": 100
   },
   "completeness": 100,
-  "summary": "Security 階段已完成，所有品質門檻達標（95分）。OWASP Top 10 檢查通過、npm audit 0 vulnerabilities、敏感資料處理妥當。已具備推進條件，等待老闆確認後方可標記 Done。",
-  "next_action": "安全階段達標（95分 >= 門檻95分）。根據鐵則，不可自行寫入 stage: done。需老闆在 Notion 手動確認後方能標記 stage: done。",
-  "updated_at": "2026-04-13T02:00:00Z"
+  "summary": "Security 階段已完成（95分），所有品質門檻達標。OWASP Top 10 檢查通過、npm audit 0 vulnerabilities、敏感資料處理妥當。可推進至 done，但需老闆在 Notion 手動確認。",
+  "next_action": "等待老闆在 Notion 手動確認後將 stage 改為 done。Worker 不得自行寫入 stage: done（鐵則）。",
+  "updated_at": "2026-04-13T02:30:00Z"
 }
