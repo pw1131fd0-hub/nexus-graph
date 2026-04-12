@@ -3,7 +3,7 @@ import cors from 'cors';
 import * as http from 'http';
 import {AddressInfo} from 'net';
 
-interface TestApp {
+export interface TestApp {
   app: express.Express;
   server: http.Server;
   baseUrl: string;
@@ -93,5 +93,10 @@ export async function createTestApp(): Promise<TestApp> {
 }
 
 export async function closeTestApp(testApp: TestApp): Promise<void> {
-  await new Promise<void>((resolve) => testApp.server.close(resolve));
+  await new Promise<void>((resolve, reject) => {
+    testApp.server.close((err) => {
+      if (err) reject(err);
+      else resolve();
+    });
+  });
 }
