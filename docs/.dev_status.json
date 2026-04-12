@@ -1,0 +1,18 @@
+{
+  "stage": "prd",
+  "iteration": 1,
+  "quality_score": 85,
+  "quality_details": {
+    "產品願景": 100,
+    "User_Story": 100,
+    "P0_P1_P2_功能分級": 100,
+    "非功能需求": 100,
+    "技術選型": 100,
+    "UI_UX_色彩計劃": 100,
+    "成功指標": 100
+  },
+  "completeness": 100,
+  "summary": "PRD 完整產出，7 項全部滿足（產品願景/User Story/P0P1P2/非功能需求/技術選型/UIUX色彩/成功指標），每項 >= 50 字。評分達標 85 分，可進入 SA/SD 階段。",
+  "next_action": "進入 SA/SD 階段，產出架構文件",
+  "updated_at": "2026-04-12T14:00:00Z"
+}
