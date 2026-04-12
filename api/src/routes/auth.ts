@@ -1,32 +1,14 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import * as jose from 'jose';
 import bcrypt from 'bcrypt';
-import { v4 as uuidv4 } from 'uuid';
 import { createError } from '../middleware/errorHandler';
+import { db } from '../db';
 
 const router = Router();
 const BCRYPT_ROUNDS = 12;
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || 'nexus-graph-dev-secret-change-in-production'
 );
-
-interface User {
-  id: string;
-  email: string;
-  passwordHash: string;
-  name: string;
-  plan: string;
-  createdAt: Date;
-}
-
-const users = new Map<string, User>();
-
-const findUserByEmail = (email: string): User | undefined => {
-  for (const user of users.values()) {
-    if (user.email === email) return user;
-  }
-  return undefined;
-};
 
 router.post('/register', async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -36,21 +18,12 @@ router.post('/register', async (req: Request, res: Response, next: NextFunction)
       throw createError('Email, password, and name are required', 400, 'VALIDATION_ERROR');
     }
 
-    if (findUserByEmail(email)) {
+    if (db.findUserByEmail(email)) {
       throw createError('Email already registered', 409, 'CONFLICT');
     }
 
     const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
-    const user: User = {
-      id: uuidv4(),
-      email,
-      passwordHash,
-      name,
-      plan: 'free',
-      createdAt: new Date(),
-    };
-
-    users.set(user.id, user);
+    const user = db.createUser({ email, passwordHash, name, plan: 'free' });
 
     res.status(201).json({
       id: user.id,
@@ -71,7 +44,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
       throw createError('Email and password are required', 400, 'VALIDATION_ERROR');
     }
 
-    const user = findUserByEmail(email);
+    const user = db.findUserByEmail(email);
     if (!user) {
       throw createError('Invalid credentials', 401, 'UNAUTHORIZED');
     }
@@ -95,6 +68,8 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
       .setExpirationTime('7d')
       .sign(JWT_SECRET);
 
+    db.storeRefreshToken(refreshToken, user.id);
+
     res.json({
       accessToken,
       refreshToken,
@@ -115,8 +90,13 @@ router.post('/refresh', async (req: Request, res: Response, next: NextFunction) 
 
     try {
       const { payload } = await jose.jwtVerify(refreshToken, JWT_SECRET);
-      const user = users.get(payload.userId as string);
+      const userId = db.getRefreshTokenUserId(refreshToken);
 
+      if (userId !== payload.userId) {
+        throw createError('Invalid refresh token', 401, 'UNAUTHORIZED');
+      }
+
+      const user = db.findUserById(payload.userId as string);
       if (!user) {
         throw createError('User not found', 401, 'UNAUTHORIZED');
       }

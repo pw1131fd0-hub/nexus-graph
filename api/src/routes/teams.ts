@@ -2,26 +2,9 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { createError } from '../middleware/errorHandler';
 import { authenticate } from '../middleware/auth';
+import { db } from '../db';
 
 const router = Router();
-
-interface Team {
-  id: string;
-  name: string;
-  slug: string;
-  ownerId: string;
-  createdAt: Date;
-}
-
-interface TeamMember {
-  userId: string;
-  name: string;
-  email: string;
-  role: 'owner' | 'member';
-}
-
-const teams = new Map<string, Team>();
-const teamMembers = new Map<string, TeamMember[]>();
 
 router.post('/', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -31,24 +14,19 @@ router.post('/', authenticate, async (req: Request, res: Response, next: NextFun
       throw createError('Team name and slug are required', 400, 'VALIDATION_ERROR');
     }
 
-    for (const team of teams.values()) {
-      if (team.slug === slug) {
-        throw createError('Slug already taken', 409, 'CONFLICT');
-      }
+    if (db.findTeamBySlug(slug)) {
+      throw createError('Slug already taken', 409, 'CONFLICT');
     }
 
-    const team: Team = {
-      id: uuidv4(),
-      name,
-      slug,
-      ownerId: req.user!.userId,
-      createdAt: new Date(),
-    };
+    const team = db.createTeam({ name, slug, ownerId: req.user!.userId });
 
-    teams.set(team.id, team);
-    teamMembers.set(team.id, [
-      { userId: req.user!.userId, name: req.user!.email, email: req.user!.email, role: 'owner' },
-    ]);
+    db.addTeamMember({
+      teamId: team.id,
+      userId: req.user!.userId,
+      name: req.user!.email,
+      email: req.user!.email,
+      role: 'owner',
+    });
 
     res.status(201).json(team);
   } catch (err) {
@@ -58,12 +36,12 @@ router.post('/', authenticate, async (req: Request, res: Response, next: NextFun
 
 router.get('/:id/members', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const team = teams.get(req.params.id);
+    const team = db.findTeamById(req.params.id);
     if (!team) {
       throw createError('Team not found', 404, 'RESOURCE_NOT_FOUND');
     }
 
-    const members = teamMembers.get(req.params.id) || [];
+    const members = db.getTeamMembers(req.params.id);
     res.json({ members });
   } catch (err) {
     next(err);
@@ -72,7 +50,7 @@ router.get('/:id/members', authenticate, async (req: Request, res: Response, nex
 
 router.post('/:id/invite', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const team = teams.get(req.params.id);
+    const team = db.findTeamById(req.params.id);
     if (!team) {
       throw createError('Team not found', 404, 'RESOURCE_NOT_FOUND');
     }
