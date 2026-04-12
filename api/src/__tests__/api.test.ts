@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
 import * as http from 'http';
 
-let server: http.Server;
+let server: http.Server | undefined;
 
 beforeAll(() => {
   process.env.JWT_SECRET = 'test-secret-key-for-testing-only';
