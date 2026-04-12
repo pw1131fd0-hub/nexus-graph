@@ -1,18 +1,19 @@
 {
-  "stage": "prd",
+  "stage": "sa_sd",
   "iteration": 1,
   "quality_score": 85,
   "quality_details": {
-    "產品願景": 100,
-    "User_Story": 100,
-    "P0_P1_P2_功能分級": 100,
-    "非功能需求": 100,
-    "技術選型": 100,
-    "UI_UX_色彩計劃": 100,
-    "成功指標": 100
+    "SA_架構圖": 100,
+    "SA_元件職責": 100,
+    "SA_資料流": 100,
+    "SA_部署方式": 100,
+    "SD_API規格": 100,
+    "SD_DB_Schema": 100,
+    "SD_錯誤處理": 100,
+    "SD_模組介面": 100
   },
   "completeness": 100,
-  "summary": "PRD 完整產出，7 項全部滿足（產品願景/User Story/P0P1P2/非功能需求/技術選型/UIUX色彩/成功指標），每項 >= 50 字。評分達標 85 分，可進入 SA/SD 階段。",
-  "next_action": "進入 SA/SD 階段，產出架構文件",
-  "updated_at": "2026-04-12T14:00:00Z"
+  "summary": "SA 與 SD 文件完整產出。SA 包含系統概覽、架構圖、元件職責、資料流、部署架構。SD 包含完整 API 規格、PostgreSQL/Neo4j/Redis Schema、錯誤處理、模組介面。評分達標 85 分，可進入 dev 階段。",
+  "next_action": "進入 dev 階段，建立專案結構與核心功能",
+  "updated_at": "2026-04-12T14:05:00Z"
 }
