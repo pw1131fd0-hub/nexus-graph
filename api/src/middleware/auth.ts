@@ -36,7 +36,7 @@ export const authenticate = async (
 
     try {
       const { payload } = await jose.jwtVerify(token, JWT_SECRET);
-      req.user = payload as TokenPayload;
+      req.user = payload as unknown as TokenPayload;
       next();
     } catch {
       throw createError('Invalid or expired token', 401, 'UNAUTHORIZED');
